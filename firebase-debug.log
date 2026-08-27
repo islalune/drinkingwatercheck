@@ -69,3 +69,4 @@
 [debug] [2026-08-27T19:08:42.820Z] No OAuth tokens found
 [debug] [2026-08-27T19:08:42.820Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/drinkingwatercheck/versions [none]
 [debug] [2026-08-27T19:08:42.820Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/drinkingwatercheck/versions {"status":"CREATED","labels":{"deployment-tool":"cli-firebase"}}
+[debug] [2026-08-27T19:08:43.615Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/drinkingwatercheck/versions 200
