@@ -420,11 +420,11 @@ export function staticPages() {
             `disclosed on the page itself and in the ${pageLink('privacy', 'privacy policy')}.</p>`,
         },
         {
-          h2: 'How this is written and checked',
+          h2: 'Written by',
           html: `<p>Every system page on ${esc(site.name)} is generated directly from EPA's SDWIS bulk data, not ` +
             `paraphrased from another water-quality site. Each page's violation counts, dates, and contaminant ` +
-            `categories are computed from the same source file (see ${guideLink('what-filter-actually-helps', 'how contaminants are grouped into concern categories')}), and pages are written with AI tools working from that ` +
-            `data rather than by a named reporter. Corrections reported through the ${pageLink('contact', 'contact page')} are checked against EPA's source data directly.</p>`,
+            `categories are computed from the same source file (see ${guideLink('what-filter-actually-helps', 'how contaminants are grouped into concern categories')}), and pages are written by AI tools working from that ` +
+            `data, not a named human author. Corrections reported through the ${pageLink('contact', 'contact page')} are checked against EPA's source data directly.</p>`,
         },
       ],
     },
