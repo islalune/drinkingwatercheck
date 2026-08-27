@@ -35,15 +35,27 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 // route with a revisit trigger.
 // ---------------------------------------------------------------------------
 const ADSENSE_ON = Boolean(site.revenue?.adsenseId);
+// Verified 2026-08-27: Tap Score's own program runs on Refersion
+// (simplewater.refersion.com) with an AWIN listing alongside it, and every
+// filter brand below is network-brokered too - Aquasana via PartnerCentric/
+// FlexOffers, iSpring self-serve but portal-issued, Waterdrop via FlexOffers/
+// AffJumbo/InfluencerRate, Berkey via Impact, Brita via FlexOffers/Commission
+// Factory, ZeroWater via Impact/FlexOffers/Webgains. None of these hand out a
+// plain `?ref=<code>` on the merchant's own storefront domain - approval
+// hands over a complete tracking link (Refersion/Impact/FlexOffers deeplink
+// format), exactly the pattern already found and fixed for Airthings,
+// Policygenius, Insurify, Groundworks and Heat & Cool elsewhere in this
+// fleet. The id field IS the full link the network or portal gives at
+// approval, not a code to interpolate into a guessed URL.
 const TAPSCORE_ID = site.revenue?.affiliates?.tapscore || '';
 
 const FILTER_BRANDS = {
-  aquasana: { name: 'Aquasana', url: (id) => `https://www.aquasana.com/?ref=${id}`, tier: 'system' },
-  ispring: { name: 'iSpring', url: (id) => `https://www.ispringwatersystems.com/?ref=${id}`, tier: 'system' },
-  waterdrop: { name: 'Waterdrop', url: (id) => `https://www.waterdropfilter.com/?ref=${id}`, tier: 'system' },
-  berkey: { name: 'Berkey', url: (id) => `https://berkeyfilters.com/?ref=${id}`, tier: 'system' },
-  brita: { name: 'Brita', url: (id) => `https://www.brita.com/?ref=${id}`, tier: 'pitcher' },
-  zerowater: { name: 'ZeroWater', url: (id) => `https://www.zerowater.com/?ref=${id}`, tier: 'pitcher' },
+  aquasana: { name: 'Aquasana', url: (id) => id, tier: 'system' },
+  ispring: { name: 'iSpring', url: (id) => id, tier: 'system' },
+  waterdrop: { name: 'Waterdrop', url: (id) => id, tier: 'system' },
+  berkey: { name: 'Berkey', url: (id) => id, tier: 'system' },
+  brita: { name: 'Brita', url: (id) => id, tier: 'pitcher' },
+  zerowater: { name: 'ZeroWater', url: (id) => id, tier: 'pitcher' },
 };
 // Which brands are actually live right now, keyed by brand id.
 const ACTIVE_FILTER_BRANDS = Object.fromEntries(
@@ -330,7 +342,7 @@ export function page(row) {
       html: `<p>${pick(row.slug + '-tapscore-body', [
           `${s.name}'s record covers the utility's water at the meter, not what's come through your household plumbing since. A lab test is the only way to answer that for your specific tap.`,
           `Nothing in ${s.name}'s EPA record can see your own pipes, fixtures, or well if you have one. A lab test of your actual tap is the only way to close that gap.`,
-        ])} <a href="https://mytapscore.com/?ref=${esc(TAPSCORE_ID)}" rel="sponsored noopener" target="_blank">Order a Tap Score home water test</a>.</p>` +
+        ])} <a href="${TAPSCORE_ID}" rel="sponsored noopener" target="_blank">Order a Tap Score home water test</a>.</p>` +
         `<p class="disclosure">Affiliate link: ${esc(site.name)} earns a commission on a qualifying Tap Score order, at no extra cost to you.</p>`,
     });
   }
