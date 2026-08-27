@@ -151,7 +151,7 @@ Six brands checked, all with real, sourced programmes:
 | Berkey (Berkey Filters) | **up to 15%** | Impact, $100 min payout | gravity/countertop systems, ~$300–400 (not separately sourced this pass) |
 | Aquasana | **~10%** (5–10% range across networks) | LinkShare/Rakuten | Tank systems (Rhino EQ-1000) **$800–1,600** installed; cartridge systems lower |
 | Waterdrop | **7–10%** (varies by network: 7% Awin, 8% AffJumbo, 10% Affpaying) | Awin + others, 30-day cookie | Whole-house unit (WHF3T-PG) **~$220** |
-| iSpring (water filtration) | **up to 8%** | direct | 3-Stage whole-house system **$500–600** |
+| iSpring (water filtration) | **up to 8%** (referral.123filter.com/program-details/commissions shows tiers down to 5% on $100+ orders — read the live tier table before applying, banner and program page disagree) | direct, apply at [referral.123filter.com](https://referral.123filter.com/) (found 2026-08-27 via the "EARN UP TO 8% COMMISSION" link in ispringfilter.com's own footer — NOT ispringsolutions.com, which is an unrelated eLearning-software company that also uses the iSpring name and has its own separate 10% affiliate program; do not confuse the two) | 3-Stage whole-house system **$500–600** |
 | ZeroWater | **5–20%** depending on network/SKU (official site "up to 20%"; FlexOffers 8%; AffJumbo 2.8%) | FlexOffers, Yazing, others; 30-day cookie | Pitchers/dispensers, lower AOV (not separately sourced, sub-$50 category) |
 | Brita | **8–10%** (Commission Factory 10%, FlexOffers 8%) | Commission Factory, FlexOffers; 30-day cookie | Pitchers ~$25–40 (not separately sourced this pass, general retail knowledge) |
 
