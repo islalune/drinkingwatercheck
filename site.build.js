@@ -120,11 +120,26 @@ function loadSystems() {
   const raws = parseCsv(csv);
   const seen = new Map();
   return raws.map((raw) => {
-    const state = String(raw.state || '').toLowerCase();
+    // EPA's SDWIS export leaves `state` blank for 244 systems - Phoenix AZ,
+    // Tucson AZ, Metro Water Services (Nashville) TN, Madison WI Water
+    // Utility among them - even though a PWSID is itself state+7 digits by
+    // EPA's own format, so the real state is sitting in the id whether or
+    // not the column carries it. Recovering it here is what stops these
+    // systems falling into a nonsense single-letter "browse/a"/"browse/m"
+    // hub keyed on the first letter of the system's name instead of a real
+    // state (confirmed live: /browse/a titled just "A", 12 unrelated
+    // systems, meta description "in A"). A handful of tribal/federal
+    // systems (Zuni Pueblo, Taos Pueblo, WinStar Casino/Chickasaw Nation,
+    // Tunica-Biloxi Tribe of LA, Alabama-Coushatta of TX...) carry an EPA
+    // REGION number instead of a state postal code and stay unresolved
+    // rather than guess.
+    const rawState = String(raw.state || '').trim().toUpperCase();
+    const pwsidPrefix = String(raw.pwsid || '').slice(0, 2).toUpperCase();
+    const state = (rawState || (/^[A-Z]{2}$/.test(pwsidPrefix) ? pwsidPrefix : '')).toLowerCase();
     let slug = `${slugify(raw.name)}-${state}`;
     if (seen.has(slug)) slug = `${slug}-${raw.pwsid.slice(-4).toLowerCase()}`;
     seen.set(slug, true);
-    return { ...raw, slug };
+    return { ...raw, state: state.toUpperCase(), slug };
   });
 }
 
@@ -362,26 +377,39 @@ export function page(row) {
     });
   }
 
-  const fullTitle = `${s.name}, ${state} Water Quality`;
+  // A handful of tribal/federal systems (see loadSystems()) have no
+  // resolvable state at all - EPA regulates them directly rather than
+  // through a state primacy agency. Every state-shaped string below
+  // degrades to the name alone instead of leaving a dangling ", " or an
+  // empty "()" in a title, meta description or JSON-LD field (confirmed
+  // live before this fix: "Alabama Coushatta #1 (Eastside),  Water
+  // Quality" with a double space, and "(): past violation." in the SERP
+  // description).
+  const nameState = state ? `${s.name}, ${state}` : s.name;
+  const fullTitle = state ? `${nameState} Water Quality` : `${s.name} Water Quality`;
   // Some multi-community system names (NTUA chapters etc.) are long enough on
   // their own that "<name>, <state> Water Quality" clears 60 display chars
   // and truncates mid-word in a SERP snippet. Dropping the suffix keeps the
   // name - the accurate, searched-for part - intact rather than shortening it.
-  const title = fullTitle.length > 60 ? `${s.name}, ${state}` : fullTitle;
+  const title = fullTitle.length > 60 ? nameState : fullTitle;
 
   return {
     slug: row.slug,
     title,
-    description: `${s.name} (${state}): ${copy.badge.toLowerCase()}. Real EPA SDWIS data, ${pop !== null ? `serving ${fmt(pop)} people. ` : ''}Free, no email.`,
+    description: `${s.name}${state ? ` (${state})` : ''}: ${copy.badge.toLowerCase()}. Real EPA SDWIS data, ${pop !== null ? `serving ${fmt(pop)} people. ` : ''}Free, no email.`,
     blocks,
-    indexLabel: `${s.name}, ${state}`,
-    indexGroup: state,
+    indexLabel: nameState,
+    // A real state groups by state as always; the few systems with none
+    // (see loadSystems()) get one honest shared hub instead of falling
+    // through hubs()'s first-letter-of-label fallback and fragmenting into
+    // a dozen meaningless single-letter "browse/a"/"browse/m" pages.
+    indexGroup: state || 'Tribal & federal systems',
     schema: {
       '@context': 'https://schema.org',
       '@type': 'Article',
-      headline: `Water Quality: ${s.name}, ${state}`,
+      headline: `Water Quality: ${nameState}`,
       about: 'Public water system EPA violation and contaminant data',
-      spatialCoverage: `${s.name}, ${state}, USA`,
+      spatialCoverage: state ? `${nameState}, USA` : `${s.name}, USA`,
     },
   };
 }
