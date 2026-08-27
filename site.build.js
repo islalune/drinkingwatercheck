@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { site } from '../SiteFactory/sitekit/config.js';
-import { summarizeSystem, violationStatus } from './functions/water-model.js';
+import { summarizeSystem, violationStatus, humanizeShout } from './functions/water-model.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
@@ -139,7 +139,12 @@ function loadSystems() {
     let slug = `${slugify(raw.name)}-${state}`;
     if (seen.has(slug)) slug = `${slug}-${raw.pwsid.slice(-4).toLowerCase()}`;
     seen.set(slug, true);
-    return { ...raw, state: state.toUpperCase(), slug };
+    // EPA's PWS_NAME casing is as inconsistent as the state column above -
+    // "CHICAGO" and "410 WATER SUPPLY" reported shouting, "Alabama Coushatta
+    // #1 (Eastside)" reported sanely, same feed. slugify() lowercases either
+    // way so this can't change a URL; see humanizeShout() in water-model.js
+    // for why it has to happen here rather than being left to the reader.
+    return { ...raw, name: humanizeShout(raw.name), state: state.toUpperCase(), slug };
   });
 }
 
@@ -208,7 +213,7 @@ const STATUS_COPY = {
   unaddressed: {
     badge: 'Unresolved violation',
     tier: 'bad',
-    explain: (s) => `${s.name} has at least one health-based violation EPA's ECHO database still lists as unaddressed - the required fix has not been reported complete.`,
+    explain: (s) => `${s.name} has at least one health-based violation EPA's own compliance-tracking system still lists as unaddressed - the required fix has not been reported complete.`,
   },
   recent: {
     badge: 'Recent violation',

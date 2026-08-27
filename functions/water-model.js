@@ -99,6 +99,30 @@ function num(v) {
 }
 
 /**
+ * EPA's SDWIS is state-reported, and casing is inconsistent across primacy
+ * agencies: system names and rule/contaminant labels arrive as either
+ * normal prose ("Lead and Copper Rule") or ALL CAPS ("LEAD AND COPPER RULE
+ * REVISIONS") for the exact same underlying thing, sometimes both in the
+ * same row's semicolon list. Left alone, the shouted version flows straight
+ * into a page's h1/title/body verbatim - "CHICAGO, IL Water Quality",
+ * "flagged from: LEAD AND COPPER RULE REVISIONS" - a database dump, not a
+ * sentence. Only touches strings with no lowercase letter at all, so
+ * anything already reported sanely is left exactly as EPA sent it.
+ */
+export function humanizeShout(raw) {
+  const s = String(raw || '');
+  if (!s || /[a-z]/.test(s)) return s;
+  let i = 0;
+  return s.replace(/[A-Za-z']+/g, (word) => {
+    const first = i++ === 0;
+    const lower = word.toLowerCase();
+    if (!first && CONNECTOR.has(lower)) return lower;
+    return word[0] + word.slice(1).toLowerCase().replace(/(?<=['-])[a-z]/g, (c) => c.toUpperCase());
+  });
+}
+const CONNECTOR = new Set(['of', 'and', 'the', 'for', 'at', 'in', 'on', 'a', 'an', 'to']);
+
+/**
  * Parses the semicolon-joined contaminants_ever_flagged column into
  * deduplicated concern categories, ranked most-severe first. Unrecognized
  * labels are kept out of the ranked list but counted, so an unmapped future
@@ -114,7 +138,7 @@ export function concernCategories(row) {
     const cat = categorize(label);
     if (!cat) { unmapped += 1; continue; }
     if (!seen.has(cat.id)) seen.set(cat.id, { ...cat, labels: [] });
-    seen.get(cat.id).labels.push(label);
+    seen.get(cat.id).labels.push(humanizeShout(label));
   }
   const ranked = [...seen.values()].sort((a, b) => b.severity - a.severity);
   return { ranked, unmappedCount: unmapped, totalLabels: raw.length };
