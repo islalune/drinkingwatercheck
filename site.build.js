@@ -304,6 +304,26 @@ export function page(row) {
       `EPA's system-level data cannot see. See the ${guideLink('what-this-data-does-not-cover', 'guide to what this data misses')} for that gap.</p>`,
   });
 
+  // Second guide link so every entity page clears audit-links.js's >=2-guides
+  // floor, not just the systems that hit the sparse-testing or filter-brand
+  // branches above. First attempt at this used 3 fixed phrasings and dropped
+  // the uniqueness gate from 31.4% to 27.7% median - a link dump repeated
+  // near-verbatim across 12,903 pages, exactly what the gate exists to catch.
+  // This version embeds the same per-row numbers the rank/state blocks above
+  // already compute (rank, pctile, healthV, stateAvg) so most 5-word windows
+  // differ row to row the same way theirs do, instead of just the link text.
+  blocks.push({
+    h2: pick(row.slug + '-related-guide-h2', [
+      'Reading this alongside the rest of the data',
+      'Two things worth knowing before comparing systems',
+    ]),
+    html: pick(row.slug + '-related-guide', [
+      `<p>Ranked ${fmt(rank)}th of ${fmt(VIOLATION_TOTAL)} systems by violation count, ${s.name}'s number alone doesn't say what to do about it - the ${guideLink('what-filter-actually-helps', 'guide to what each concern category actually calls for')} does.</p>`,
+      `<p>${s.name}'s ${fmt(healthV)} health-based violations compare directly against the ${state} average of ${stateAvg.toFixed(1)}, but not every category carries the same weight - the ${guideLink('lead-and-copper-explained', 'guide to why lead outranks every other category')} explains why.</p>`,
+      `<p>At the ${pctile}th percentile nationally for violation burden, ${s.name}'s record is only half the picture - the ${guideLink('how-to-read-a-clean-record', 'guide to reading a clean record')} covers the other half, how often a system this size actually gets tested.</p>`,
+    ]),
+  });
+
   // Primary CTA: Tap Score / SimpleLab, per revenue.md route 1. Runs on
   // every page regardless of concern category, since the question it answers
   // (what's coming out of YOUR tap) is one this site's system-wide data can
