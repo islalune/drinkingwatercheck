@@ -264,6 +264,24 @@ export function page(row) {
             `toward a ${esc(s.recommendedFilterClass.replace('-', ' '))}-class filter if you want to address it directly.</p>`
           : ''),
     });
+
+    // Secondary CTA: tiered filter-brand affiliate, per revenue.md route 2.
+    // Only renders once a brand id for this filterClass is actually filled
+    // in - stays structurally dark otherwise, same as the disclosure below.
+    const brand = activeFilterBrandFor(s.recommendedFilterClass);
+    if (brand) {
+      blocks.push({
+        h2: pick(row.slug + '-filter-cta-h2', [
+          `A ${s.recommendedFilterClass.replace('-', ' ')} filter for ${s.name}'s flagged contaminants`,
+          `Addressing ${s.primaryConcern.label.toLowerCase()} directly`,
+        ]),
+        html: `<p>${brand.tier === 'pitcher'
+            ? `${s.primaryConcern.label} at the severity on record here is within reach of a countertop or pitcher-tier filter - no whole-house install needed.`
+            : `${s.primaryConcern.label} at the severity on record here is generally better addressed with a whole-house or point-of-use system than a pitcher.`
+          } <a href="${brand.url(brand.id)}" rel="sponsored noopener" target="_blank">Compare ${esc(brand.name)}'s ${brand.tier === 'pitcher' ? 'pitchers' : 'systems'}</a>.</p>` +
+          `<p class="disclosure">Affiliate link: ${esc(site.name)} earns a commission on a qualifying purchase through ${esc(brand.name)}, at no extra cost to you.</p>`,
+      });
+    }
   }
 
   if (s.sparseTestingCaveat) {
@@ -285,6 +303,24 @@ export function page(row) {
     ])} Water quality can still change between the utility's meter and your faucet, from household plumbing that ` +
       `EPA's system-level data cannot see. See the ${guideLink('what-this-data-does-not-cover', 'guide to what this data misses')} for that gap.</p>`,
   });
+
+  // Primary CTA: Tap Score / SimpleLab, per revenue.md route 1. Runs on
+  // every page regardless of concern category, since the question it answers
+  // (what's coming out of YOUR tap) is one this site's system-wide data can
+  // never answer for itself. Dark until TAPSCORE_ID is filled in.
+  if (TAPSCORE_ID) {
+    blocks.push({
+      h2: pick(row.slug + '-tapscore-h2', [
+        'Want a direct answer for your own tap?',
+        `Testing ${s.name}'s water is not the same as testing yours`,
+      ]),
+      html: `<p>${pick(row.slug + '-tapscore-body', [
+          `${s.name}'s record covers the utility's water at the meter, not what's come through your household plumbing since. A lab test is the only way to answer that for your specific tap.`,
+          `Nothing in ${s.name}'s EPA record can see your own pipes, fixtures, or well if you have one. A lab test of your actual tap is the only way to close that gap.`,
+        ])} <a href="https://mytapscore.com/?ref=${esc(TAPSCORE_ID)}" rel="sponsored noopener" target="_blank">Order a Tap Score home water test</a>.</p>` +
+        `<p class="disclosure">Affiliate link: ${esc(site.name)} earns a commission on a qualifying Tap Score order, at no extra cost to you.</p>`,
+    });
+  }
 
   return {
     slug: row.slug,
@@ -389,10 +425,21 @@ export function staticPages() {
             `and, if enabled, aggregate analytics may record page visits. No personal data is sold.</p>`,
         },
         {
-          h2: 'Advertising',
-          html: `<p>${esc(site.name)} earns money from display advertising served by Google AdSense. AdSense may ` +
-            `use cookies to personalize the ads shown to you; see Google's own advertising and privacy policies ` +
-            `for how that works. This site has no live affiliate relationship today.</p>`,
+          h2: 'Advertising and affiliate links',
+          html: (ADSENSE_ON || TAPSCORE_ID || ANY_FILTER_AFFILIATE_ACTIVE)
+            ? `<p>${esc(site.name)} earns money from ${[
+                ADSENSE_ON && 'display advertising served by Google AdSense',
+                (TAPSCORE_ID || ANY_FILTER_AFFILIATE_ACTIVE) && 'affiliate links to water-testing and filtration products',
+              ].filter(Boolean).join(' and ')}.${(TAPSCORE_ID || ANY_FILTER_AFFILIATE_ACTIVE)
+                ? ` Affiliate links are marked as such at the point they appear, and ${esc(site.name)} may earn a ` +
+                  `commission on a qualifying purchase there, at no extra cost to you.`
+                : ''}${ADSENSE_ON
+                ? ` AdSense may use cookies to personalize the ads shown to you; see Google's own advertising ` +
+                  `and privacy policies for how that works.`
+                : ''}</p>`
+            : `<p>${esc(site.name)} earns nothing from ads or affiliate commissions today. If that changes, this ` +
+              `paragraph and the relevant page's disclosure line are updated together, deliberately, so that an ` +
+              `affiliate relationship can never go live silently.</p>`,
         },
         {
           h2: 'Your rights and choices',

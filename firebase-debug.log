@@ -1,0 +1,28 @@
+[debug] [2026-08-27T08:27:27.205Z] ----------------------------------------------------------------------
+[debug] [2026-08-27T08:27:27.208Z] Command:       /usr/bin/node /usr/bin/firebase deploy --only hosting:drinkingwatercheck --project sitefactory-dashboard
+[debug] [2026-08-27T08:27:27.208Z] CLI Version:   15.28.1
+[debug] [2026-08-27T08:27:27.208Z] Platform:      linux
+[debug] [2026-08-27T08:27:27.209Z] Node Version:  v22.23.2
+[debug] [2026-08-27T08:27:27.209Z] Detected Agent: claude-code_2-1-246_agent
+[debug] [2026-08-27T08:27:27.209Z] Time:          Thu Aug 27 2026 08:27:27 GMT+0000 (Coordinated Universal Time)
+[debug] [2026-08-27T08:27:27.209Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-08-27T08:27:28.455Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-08-27T08:27:28.472Z] Running auto auth
+[debug] [2026-08-27T08:27:28.475Z] [iam] checking project sitefactory-dashboard for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2026-08-27T08:27:28.488Z] No OAuth tokens found
+[debug] [2026-08-27T08:27:28.489Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/sitefactory-dashboard:testIamPermissions [none]
+[debug] [2026-08-27T08:27:28.489Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/sitefactory-dashboard:testIamPermissions  x-goog-user-project=sitefactory-dashboard
+[debug] [2026-08-27T08:27:28.490Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/sitefactory-dashboard:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-08-27T08:27:28.596Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/sitefactory-dashboard:testIamPermissions 200
+[debug] [2026-08-27T08:27:28.597Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/sitefactory-dashboard:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-08-27T08:27:28.598Z] No OAuth tokens found
+[debug] [2026-08-27T08:27:28.598Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/sitefactory-dashboard [none]
+[debug] [2026-08-27T08:27:28.776Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/sitefactory-dashboard 200
+[debug] [2026-08-27T08:27:28.776Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/sitefactory-dashboard {"projectId":"sitefactory-dashboard","projectNumber":"971082992858","displayName":"SiteFactory Dashboard","name":"projects/sitefactory-dashboard","resources":{"hostingSite":"sitefactory-dashboard"},"state":"ACTIVE","etag":"1_51712444-ef65-40a5-8f04-179e95a40b37"}
+[info] 
+[info] === Deploying to 'sitefactory-dashboard'...
+[info] 
+[info] i  deploying hosting 
+[debug] [2026-08-27T08:27:28.779Z] No OAuth tokens found
+[debug] [2026-08-27T08:27:28.780Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/sitefactory-dashboard/sites/drinkingwatercheck [none]
