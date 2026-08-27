@@ -272,6 +272,25 @@ export function page(row) {
   const stateAvg = stateHealthAvg.get(state) ?? 0;
   const stateList = byState.get(state) ?? [];
   const aboveStateAvg = healthV > stateAvg;
+  // A few tribal/federal systems have no state in EPA's own record (see
+  // loadSystems()) and group with each other under a blank key - stretching
+  // the per-state template over an empty string read as broken grammar
+  // live ("Against the  average", double space, "244  systems" comparing
+  // Alabama-Coushatta in TX against Phoenix AZ). Say plainly why there's no
+  // state instead of pretending there is one.
+  const stateH2 = state
+    ? [`Against the ${state} average`, `How ${s.name} compares within ${state}`]
+    : ['Against similar systems', `How ${s.name} compares among its peers`];
+  const stateBody = state
+    ? [
+        `Among the ${fmt(stateList.length)} ${state} systems in this dataset, the average is ${stateAvg.toFixed(1)} health-based violations - ${s.name}'s ${fmt(healthV)} is ${aboveStateAvg ? 'above' : 'at or below'} that.`,
+        `${state}'s ${fmt(stateList.length)} covered systems average ${stateAvg.toFixed(1)} health-based violations each; ${s.name} carries ${fmt(healthV)}, ${aboveStateAvg ? 'more than' : 'not more than'} typical for the state.`,
+        `${s.name}'s ${fmt(healthV)} health-based violations sit ${aboveStateAvg ? 'above' : 'within'} the ${state} average of ${stateAvg.toFixed(1)}, across ${fmt(stateList.length)} systems statewide.`,
+      ]
+    : [
+        `EPA's own record does not list a state for ${s.name} - common for systems it regulates directly rather than through a state agency, mostly tribal water systems. Among the ${fmt(stateList.length)} such systems on this site, the average is ${stateAvg.toFixed(1)} health-based violations; ${s.name}'s ${fmt(healthV)} is ${aboveStateAvg ? 'above' : 'at or below'} that.`,
+        `${s.name} is one of ${fmt(stateList.length)} systems here with no state in EPA's record, mostly tribal systems EPA regulates directly. They average ${stateAvg.toFixed(1)} health-based violations each; ${s.name} carries ${fmt(healthV)}, ${aboveStateAvg ? 'more than' : 'not more than'} that.`,
+      ];
   // Second guide link folded into this block, not a new one, and kept short -
   // a standalone paragraph with only 3 fixed phrasings dropped the uniqueness
   // gate from 31.4% to 27.7% median (a link dump repeated near-verbatim
@@ -279,12 +298,8 @@ export function page(row) {
   // Appending a short clause onto an already numeric, per-row-unique block
   // keeps the added fixed text small relative to the page.
   blocks.push({
-    h2: pick(row.slug + '-state-h2', [`Against the ${state} average`, `How ${s.name} compares within ${state}`]),
-    html: `<p>${pick(row.slug + '-state', [
-      `Among the ${fmt(stateList.length)} ${state} systems in this dataset, the average is ${stateAvg.toFixed(1)} health-based violations - ${s.name}'s ${fmt(healthV)} is ${aboveStateAvg ? 'above' : 'at or below'} that.`,
-      `${state}'s ${fmt(stateList.length)} covered systems average ${stateAvg.toFixed(1)} health-based violations each; ${s.name} carries ${fmt(healthV)}, ${aboveStateAvg ? 'more than' : 'not more than'} typical for the state.`,
-      `${s.name}'s ${fmt(healthV)} health-based violations sit ${aboveStateAvg ? 'above' : 'within'} the ${state} average of ${stateAvg.toFixed(1)}, across ${fmt(stateList.length)} systems statewide.`,
-    ])} ${pick(row.slug + '-state-guide', [
+    h2: pick(row.slug + '-state-h2', stateH2),
+    html: `<p>${pick(row.slug + '-state', stateBody)} ${pick(row.slug + '-state-guide', [
       `The ${guideLink('what-filter-actually-helps', 'filter guide')} explains what a violation like this actually calls for.`,
       `See the ${guideLink('lead-and-copper-explained', 'lead and copper guide')} for why lead counts differently.`,
       `The ${guideLink('how-to-read-a-clean-record', 'clean-record guide')} covers what a comparison like this can hide.`,
