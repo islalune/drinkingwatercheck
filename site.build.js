@@ -248,8 +248,8 @@ export function page(row) {
       'Ranked against every other system in this dataset',
     ]),
     html: `<p>${pick(row.slug + '-rank', [
-      `${s.name} has ${plural(totalV, 'violation')} on record in total, ${plural(healthV, 'of them')} health-based - ranking it ${fmt(rank)}th of ${fmt(VIOLATION_TOTAL)} systems by violation count, the ${pctile}th percentile nationally.`,
-      `Out of ${fmt(VIOLATION_TOTAL)} systems in this dataset, ${s.name} ranks ${fmt(rank)}th by violation burden (${pctile}th percentile) - ${plural(totalV, 'violation')} total, ${plural(healthV, 'health-based')}.`,
+      `${s.name} has ${plural(totalV, 'violation')} on record in total, ${fmt(healthV)} of them health-based - ranking it ${fmt(rank)}th of ${fmt(VIOLATION_TOTAL)} systems by violation count, the ${pctile}th percentile nationally.`,
+      `Out of ${fmt(VIOLATION_TOTAL)} systems in this dataset, ${s.name} ranks ${fmt(rank)}th by violation burden (${pctile}th percentile) - ${plural(totalV, 'violation')} total, ${fmt(healthV)} health-based.`,
       `${fmt(totalV)} total violations and ${fmt(healthV)} health-based ones put ${s.name} at the ${pctile}th percentile nationally for violation burden, rank ${fmt(rank)} of ${fmt(VIOLATION_TOTAL)}.`,
     ])}</p>`,
   });
