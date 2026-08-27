@@ -171,22 +171,27 @@ function pick(seed, variants) { return variants[hashOf(seed) % variants.length];
 const STATUS_COPY = {
   unaddressed: {
     badge: 'Unresolved violation',
+    tier: 'bad',
     explain: (s) => `${s.name} has at least one health-based violation EPA's ECHO database still lists as unaddressed - the required fix has not been reported complete.`,
   },
   recent: {
     badge: 'Recent violation',
+    tier: 'bad',
     explain: (s) => `${s.name} had a health-based violation within the last five years. The required corrective action was reported, but it happened recently enough to matter.`,
   },
   past: {
     badge: 'Past violation',
+    tier: 'mid',
     explain: (s) => `${s.name} has a health-based violation on record, but none in the last five years - an older issue, not necessarily a current one.`,
   },
   'non-health': {
     badge: 'Reporting violation only',
+    tier: 'mid',
     explain: (s) => `${s.name}'s only violations on record are reporting or monitoring lapses, not a contaminant or treatment-technique failure EPA classifies as health-based.`,
   },
   clean: {
     badge: 'No violations on record',
+    tier: 'good',
     explain: (s) => `${s.name} has no violations on record in EPA's SDWIS data.`,
   },
 };
@@ -216,7 +221,18 @@ export function page(row) {
       ])
     : '';
 
-  blocks.push({ h2: headlineH2, html: `<p>${copy.explain(s)}${popLine}</p>` });
+  // The status level is the answer whoever arrived came for - was this water
+  // safe - but until now it only ever showed up inside a sentence of body
+  // prose. Every sibling site (radonzonecheck, snowloadcheck, etc.) puts its
+  // equivalent answer in the shared .verdict/.badge/.figure component, the
+  // biggest thing on the page, right under the h2. This site never did.
+  const healthV = Number(row.violations_health_based_ever) || 0;
+  blocks.push({
+    h2: headlineH2,
+    html: `<div class="verdict"><span class="badge ${copy.tier}">${copy.badge}</span>
+<div class="figure">${fmt(healthV)}<small> health-based violation${healthV === 1 ? '' : 's'}</small></div>
+<p class="says">${copy.explain(s)}${popLine}</p></div>`,
+  });
 
   // A near-per-row-unique numeric fingerprint, same role as the sibling
   // sites' national percentile rank - this dataset's status field alone
@@ -225,7 +241,6 @@ export function page(row) {
   const rank = violationRank.get(row.slug);
   const pctile = Math.round(((VIOLATION_TOTAL - rank) / (VIOLATION_TOTAL - 1)) * 100);
   const totalV = Number(row.violations_total_ever) || 0;
-  const healthV = Number(row.violations_health_based_ever) || 0;
   blocks.push({
     h2: pick(row.slug + '-rank-h2', [
       'How this compares nationally',
