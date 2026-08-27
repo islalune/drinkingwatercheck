@@ -1,0 +1,41 @@
+{
+  "retrieved": "2026-08-27T06:32:31.854Z",
+  "systems": 12903,
+  "source": {
+    "url": "https://echo.epa.gov/files/echodownloads/SDWA_latest_downloads.zip",
+    "dataset": "EPA ECHO, SDWA bulk download (SDWIS quarterly refresh)",
+    "filesUsed": [
+      "SDWA_PUB_WATER_SYSTEMS.csv",
+      "SDWA_GEOGRAPHIC_AREAS.csv",
+      "SDWA_VIOLATIONS_ENFORCEMENT.csv",
+      "SDWA_REF_CODE_VALUES.csv"
+    ],
+    "quarterObserved": "2026Q2 (per SUBMISSIONYEARQUARTER column and zip last-modified date)"
+  },
+  "filter": {
+    "pwsTypeCode": "CWS (Community Water System - serves the same population year-round)",
+    "pwsActivityCode": "A (active)",
+    "minPopulationServed": 2000,
+    "rationale": "All active CWS = 49378 (matches candidates.json \"~50k systems\"). Adding the population >= 2000 floor narrows that to 12903, close to the 12,000-page plan without an arbitrary top-N cut; below this line systems are classified \"very small\" in EPA's own population brackets and monitoring frequency drops."
+  },
+  "excludedFromScope": {
+    "TNCWS": "Transient non-community (campgrounds, rest stops, gas stations) - no stable population, not a \"my tap water\" audience.",
+    "NTNCWS": "Non-transient non-community (a single factory/school on its own well) - same reason.",
+    "inactivePwsActivityCode": "Deactivated/merged systems - would 404 as \"my water utility\" for a current resident.",
+    "belowPopulationFloor": "Active CWS below 2000 population served (36475 systems) - real, but out of this pass's scope; see STILL OPEN below."
+  },
+  "violationsWindow": {
+    "recentYears": 5,
+    "note": "Not an official EPA cutoff - a reasonable recency horizon for \"is this a live/current problem,\" applied to NON_COMPL_PER_BEGIN_DATE."
+  },
+  "coverage": {
+    "systemsWithAnyViolationEver": 12570,
+    "systemsWithHealthBasedViolationEver": 9233,
+    "systemsWithCurrentlyUnaddressedHealthViolation": 391
+  },
+  "dataQuality": {
+    "countyCityFromServiceAreaTable": "SDWA_GEOGRAPHIC_AREAS.csv service-area rows are self-reported by primacy agencies and incomplete for some systems - counties_served/cities_served can be blank even for a real active system; cities_served falls back to the PWS table's mailing-address city in that case, which may not be the true service area.",
+    "violationDateMissing": "A violation row with a blank NON_COMPL_PER_BEGIN_DATE is still counted in violations_total_ever/violations_health_based_ever but cannot contribute to most_recent_violation_date or the recent-window count - so those two figures are a floor, not an exact total, for systems with older/incompletely-dated records.",
+    "noHealthBasedViolationsDoesNotMeanClean": "A system with 0 health-based violations may simply have fewer/less-frequent required tests (smaller systems test less often) rather than definitively cleaner water; this dataset reports what was tested and found, not an independent guarantee of safety."
+  }
+}
