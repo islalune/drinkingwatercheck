@@ -340,6 +340,7 @@ export function page(row) {
 }
 
 function guideLink(slug, label) { return `<a href="/guides/${slug}">${label}</a>`; }
+function pageLink(slug, label) { return `<a href="/${slug}">${label}</a>`; }
 
 // ---------------------------------------------------------------------------
 // Home
@@ -411,6 +412,19 @@ export function staticPages() {
           h2: 'What it cannot tell you',
           html: `<p>EPA's system-level record cannot see your own household plumbing, and it cannot substitute ` +
             `for a lab test of your specific tap. See the ${guideLink('what-this-data-does-not-cover', 'what this data misses')} guide for the full list of gaps.</p>`,
+        },
+        {
+          h2: 'Who runs this',
+          html: `<p>${esc(site.name)} is an independently run site. It is not affiliated with EPA, any state ` +
+            `primacy agency, or any water utility. Where a page includes a sponsored or affiliate link, that is ` +
+            `disclosed on the page itself and in the ${pageLink('privacy', 'privacy policy')}.</p>`,
+        },
+        {
+          h2: 'How this is written and checked',
+          html: `<p>Every system page on ${esc(site.name)} is generated directly from EPA's SDWIS bulk data, not ` +
+            `paraphrased from another water-quality site. Each page's violation counts, dates, and contaminant ` +
+            `categories are computed from the same source file (see ${guideLink('what-filter-actually-helps', 'how contaminants are grouped into concern categories')}), and pages are written with AI tools working from that ` +
+            `data rather than by a named reporter. Corrections reported through the ${pageLink('contact', 'contact page')} are checked against EPA's source data directly.</p>`,
         },
       ],
     },
