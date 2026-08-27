@@ -712,13 +712,16 @@ export function homeHtml({ headline, lede, placeholder, noun, count, browseLinks
 
 <section class="dw-honest">
   <h2>Read this before you rely on it</h2>
-  <p>This is your <strong>utility's</strong> EPA record, not a test of your own tap. Water quality can change
-  between the utility's meter and your faucet, from plumbing this data cannot see. It's the question before
-  that one: has this system had a violation, what kind, and is it still open.</p>
+  <p>This is your <strong>utility's</strong> EPA record, not a substitute for a certified lab test of your own
+  tap. Water quality can change between the utility's meter and your faucet, from plumbing this data cannot see.
+  Testing frequency isn't equal either: EPA requires more frequent monitoring as population served rises, so a
+  clean record on a small system reflects fewer tests than the same record on a large one, not a guarantee the
+  water is the same. It's the question before that one: has this system had a violation, what kind, and is it
+  still open.</p>
 </section>
 
 <dl class="dw-legend">
-  <div><dt>No violations on record</dt><dd>Nothing flagged in EPA's SDWIS data.</dd></div>
+  <div><dt>No violations on record</dt><dd>Nothing flagged in EPA's SDWIS data — reflects what was tested, not a guarantee.</dd></div>
   <div><dt>Reporting violation only</dt><dd>A monitoring or paperwork lapse, not a contaminant finding.</dd></div>
   <div><dt>Past violation</dt><dd>A health-based violation exists, none in the last 5 years.</dd></div>
   <div><dt>Recent violation</dt><dd>A health-based violation within the last 5 years.</dd></div>
