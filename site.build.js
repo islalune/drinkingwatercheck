@@ -324,7 +324,7 @@ export function page(row) {
 
   return {
     slug: row.slug,
-    title: `${s.name}, ${state} Water Quality: EPA Violation Data`,
+    title: `${s.name}, ${state} Water Quality`,
     description: `${s.name} (${state}): ${copy.badge.toLowerCase()}. Real EPA SDWIS data, ${pop !== null ? `serving ${fmt(pop)} people. ` : ''}Free, no email.`,
     blocks,
     indexLabel: `${s.name}, ${state}`,
@@ -352,7 +352,7 @@ export function home() {
   const unaddressed = rows.filter((r) => Number(r.violations_health_based_currently_unaddressed) > 0).length;
 
   return {
-    title: `${site.name} - What's Actually In Your Tap Water, From EPA Records`,
+    title: `${site.name} - EPA Tap Water Violation Data`,
     description: `Real EPA SDWIS violation and contaminant data for ${fmt(rows.length)} US water systems serving ${fmt(totalPop)} people. Free, no email.`,
     blocks: [
       {
