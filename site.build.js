@@ -310,8 +310,11 @@ export function page(row) {
       `This is what ${s.name} reported to its state primacy agency and EPA under the Safe Drinking Water Act - real regulatory record, not a lab test of your specific tap.`,
       `${s.name}'s numbers here come from its own required reporting to EPA under the Safe Drinking Water Act, not from an independent test of your glass of water.`,
       `Everything on this page is ${s.name}'s own reported record under the Safe Drinking Water Act - a regulatory filing, not a sample of your tap.`,
-    ])} Water quality can still change between the utility's meter and your faucet, from household plumbing that ` +
-      `EPA's system-level data cannot see. See the ${guideLink('what-this-data-does-not-cover', 'guide to what this data misses')} for that gap.</p>`,
+    ])} ${pick(row.slug + '-caveat-tail', [
+      `Water quality can still change between the meter and the faucet - household plumbing sits outside what a record of ${fmt(totalV)} logged violations can see. The ${guideLink('what-this-data-does-not-cover', 'guide to what this data misses')} covers that gap.`,
+      `Between the utility's meter and ${s.name}'s customers' taps is household plumbing, invisible to a system-level record ranked ${fmt(rank)}th of ${fmt(VIOLATION_TOTAL)} by violation count. The ${guideLink('what-this-data-does-not-cover', 'guide to what this data misses')} covers that gap.`,
+      `This record - ${plural(healthV, 'health-based violation')} on file for ${s.name} - stops at the meter and cannot see household plumbing on the other side of it. The ${guideLink('what-this-data-does-not-cover', 'guide to what this data misses')} covers that gap.`,
+    ])}</p>`,
   });
 
   // Primary CTA: Tap Score / SimpleLab, per revenue.md route 1. Runs on
