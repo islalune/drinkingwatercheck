@@ -357,8 +357,46 @@ export function staticPages() {
 // Guides
 // ---------------------------------------------------------------------------
 
+function systemLink(slug, label) {
+  const s = summaryBySlug.get(slug);
+  return `<a href="/${slug}">${label ?? `${s.name}, ${s.state}`}</a>`;
+}
+
+/**
+ * Every guide ends with a few real systems and a couple of sibling guides.
+ * audit-links.js requires >=3 entity links and >=2 guide links per guide, and
+ * the requirement is doing real work here: with 12,903 near-identical entity
+ * pages, guides are the crawl path Googlebot actually uses to reach most of
+ * them, so a guide that links nowhere is a dead end for both the reader and
+ * the crawler. Links rotate per guide rather than repeating the same three
+ * examples everywhere, which reads as boilerplate and carries a weaker signal.
+ */
+function withRelated(list) {
+  const spread = ['unaddressed', 'recent', 'clean']
+    .map((level) => byUrgency.find((r) => summaryBySlug.get(r.slug).status.level === level))
+    .filter(Boolean);
+
+  return list.map((g, i) => {
+    const siblings = list.filter((x) => x.slug !== g.slug);
+    const near = [siblings[i % siblings.length], siblings[(i + 1) % siblings.length]].filter(Boolean);
+    const picks = g.related ?? spread;
+
+    return {
+      ...g,
+      blocks: [...g.blocks, {
+        h2: 'Where to go next',
+        html: '<p>Real systems this plays out on: ' +
+          picks.map((r) => systemLink(r.slug)).join(', ') +
+          '.</p><p>' +
+          near.map((x) => guideLink(x.slug, x.title)).join(' &middot; ') +
+          '</p>',
+      }],
+    };
+  });
+}
+
 export function guides() {
-  return [
+  return withRelated([
     {
       slug: 'what-this-data-does-not-cover',
       title: `What EPA's Water Data Doesn't Cover`,
@@ -403,7 +441,76 @@ export function guides() {
         },
       ],
     },
-  ];
+    {
+      slug: 'what-filter-actually-helps',
+      title: `What Filter Actually Addresses Each Kind of Violation`,
+      description: `EPA's violation labels name a rule or a chemical, not a filter. Here's what each concern category actually calls for.`,
+      related: [{ slug: 'chicago-il' }, { slug: 'new-york-city-system-ny' }, { slug: 'columbus-public-water-system-oh' }],
+      blocks: [
+        {
+          h2: `A violation label is not a shopping list`,
+          html: `<p>EPA's own contaminant codes name a specific rule or chemical - "Surface Water Treatment Rule," ` +
+            `"TTHM," "Nitrate" - not a product. ${esc(site.name)} groups the 66 distinct labels that actually ` +
+            `appear in this dataset into a handful of concern categories, each pointing at a different class of ` +
+            `home filter, because that is the decision the label is actually useful for.</p>`,
+        },
+        {
+          h2: `Lead & copper: a pitcher filter is not enough`,
+          html: `<p>Lead contamination is almost always from the plumbing between the water main and the tap, not the ` +
+            `treated water itself, so it needs a filter certified to NSF/ANSI 53 for lead, not a basic carbon ` +
+            `pitcher certified only for taste. ${systemLink('chicago-il')}'s page shows what a lead & copper flag ` +
+            `looks like on a real system's record.</p>`,
+        },
+        {
+          h2: `Microbial and disinfection-byproduct flags: different fixes`,
+          html: `<p>A microbial or treatment-technique violation (total coliform, a lapsed disinfection or filtration ` +
+            `step) calls for a filter certified for cysts and bacteria, not carbon alone. Disinfection byproducts ` +
+            `like TTHM are the opposite case - a standard carbon filter handles them well, since the concern is ` +
+            `long-term chemical exposure rather than an acute pathogen. ${systemLink('new-york-city-system-ny')} ` +
+            `is a large system where a microbial-category flag is on record.</p>`,
+        },
+        {
+          h2: `Nitrate, radionuclides, and other regulated metals`,
+          html: `<p>Nitrate, radionuclides, and most other regulated metals (arsenic, chromium, fluoride) pass ` +
+            `straight through carbon filters and need reverse osmosis instead, since these are dissolved ` +
+            `inorganic compounds, not organic chemicals carbon adsorbs. ${systemLink('columbus-public-water-system-oh')} ` +
+            `is a real system with a nitrate flag on record. Every system's own page names its specific flagged ` +
+            `category and the filter class it points to, next to its violation history.</p>`,
+        },
+      ],
+    },
+    {
+      slug: 'lead-and-copper-explained',
+      title: `Why Lead Violations Get Treated as the Most Urgent Category`,
+      description: `Lead has no safe exposure threshold and comes from plumbing, not the treated water - why this site ranks it above every other concern category.`,
+      related: [{ slug: 'chicago-il' }, { slug: 'cleveland-public-water-system-oh' }, { slug: 'seattle-public-utilities-wa' }],
+      blocks: [
+        {
+          h2: `No safe threshold, unlike almost everything else EPA regulates`,
+          html: `<p>Most contaminants EPA regulates have a maximum level below which exposure is considered ` +
+            `acceptable. Lead does not - the EPA and CDC treat any detectable lead exposure as a risk, especially ` +
+            `for children, which is why ${esc(site.name)} ranks a lead & copper flag as the single most urgent ` +
+            `concern category, above even acute microbial risks.</p>`,
+        },
+        {
+          h2: `It usually isn't the utility's water that's the problem`,
+          html: `<p>Lead contamination typically comes from lead service lines or lead solder in a building's own ` +
+            `plumbing, corroding after the water has already left the treatment plant - which is why a system can ` +
+            `carry a lead & copper flag while its source water tests clean. ${systemLink('chicago-il')} and ` +
+            `${systemLink('cleveland-public-water-system-oh')} are both large systems with a lead & copper flag on ` +
+            `record, from cities with substantial lead service line inventories.</p>`,
+        },
+        {
+          h2: `What EPA's Lead and Copper Rule actually requires`,
+          html: `<p>Utilities must sample water at high-risk taps (older homes with lead service lines) and take ` +
+            `corrosion-control action if too many samples exceed the action level. A violation means that action ` +
+            `level was exceeded or the required corrosion-control step wasn't taken, not that every tap in the ` +
+            `system carries lead. ${systemLink('seattle-public-utilities-wa')} shows how this reads on one ` +
+            `system's own page, alongside the NSF/ANSI 53 filter class it points to.</p>`,
+        },
+      ],
+    },
+  ]);
 }
 
 // ---------------------------------------------------------------------------

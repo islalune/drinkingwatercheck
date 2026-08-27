@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "target": "drinkingwatercheck",
     "public": "public",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "cleanUrls": true,

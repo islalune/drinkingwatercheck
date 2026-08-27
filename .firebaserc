@@ -1,5 +1,15 @@
 {
   "projects": {
-    "default": "drinkingwatercheck-site"
-  }
+    "default": "sitefactory-dashboard"
+  },
+  "targets": {
+    "sitefactory-dashboard": {
+      "hosting": {
+        "drinkingwatercheck": [
+          "drinkingwatercheck"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }
