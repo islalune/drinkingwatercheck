@@ -323,12 +323,36 @@ export function staticPages() {
     {
       slug: 'privacy',
       title: `Privacy - ${site.name}`,
-      description: `${site.name} collects no personal data. No account, no email required to use it.`,
-      blocks: [{
-        h2: 'What we collect',
-        html: `<p>${esc(site.name)} requires no account and no email to search or browse. Standard web server logs ` +
-          `and, if enabled, aggregate analytics may record page visits. No personal data is sold.</p>`,
-      }],
+      description: `What ${site.name} collects, what it does not, and how its advertising is disclosed.`,
+      blocks: [
+        {
+          h2: 'What we collect',
+          html: `<p>${esc(site.name)} requires no account and no email to search or browse. Standard web server logs ` +
+            `and, if enabled, aggregate analytics may record page visits. No personal data is sold.</p>`,
+        },
+        {
+          h2: 'Advertising',
+          html: `<p>${esc(site.name)} earns money from display advertising served by Google AdSense. AdSense may ` +
+            `use cookies to personalize the ads shown to you; see Google's own advertising and privacy policies ` +
+            `for how that works. This site has no live affiliate relationship today.</p>`,
+        },
+        {
+          h2: 'Your rights and choices',
+          html: `<p>Depending on where you live, you may have rights over the limited data described above - for ` +
+            `example under California's CCPA/CPRA, other US state privacy laws, or GDPR for EU/UK visitors. Where ` +
+            `they apply, these can include the right to know what's collected, request its deletion, and opt out ` +
+            `of the "sale" or "sharing" of information for targeted advertising. To make any of these requests, ` +
+            `email <a href="mailto:hello@${site.host}">hello@${site.host}</a>.</p><p>AdSense's own ` +
+            `ad-personalization controls are at <a href="https://adssettings.google.com">adssettings.google.com` +
+            `</a>, and general industry opt-out tools are listed at <a href="https://optout.aboutads.info">` +
+            `optout.aboutads.info</a> - both work independently of this site.</p>`,
+        },
+        {
+          h2: 'Children',
+          html: `<p>This site is not directed at children under 13 and does not knowingly collect information ` +
+            `from them.</p>`,
+        },
+      ],
     },
     {
       slug: 'terms',
@@ -347,7 +371,9 @@ export function staticPages() {
       description: `Contact information for ${site.name}.`,
       blocks: [{
         h2: 'Get in touch',
-        html: `<p>Found a data error or have a correction? Contact the site through the details on ${esc(site.name)}'s About page.</p>`,
+        html: `<p>Found a data error or have a correction? Email ` +
+          `<a href="mailto:hello@${site.host}">hello@${site.host}</a>. This is not a live-chat or same-day ` +
+          `support line; expect a reply within a few days.</p>`,
       }],
     },
   ];
