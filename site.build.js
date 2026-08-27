@@ -335,9 +335,16 @@ export function page(row) {
     });
   }
 
+  const fullTitle = `${s.name}, ${state} Water Quality`;
+  // Some multi-community system names (NTUA chapters etc.) are long enough on
+  // their own that "<name>, <state> Water Quality" clears 60 display chars
+  // and truncates mid-word in a SERP snippet. Dropping the suffix keeps the
+  // name - the accurate, searched-for part - intact rather than shortening it.
+  const title = fullTitle.length > 60 ? `${s.name}, ${state}` : fullTitle;
+
   return {
     slug: row.slug,
-    title: `${s.name}, ${state} Water Quality`,
+    title,
     description: `${s.name} (${state}): ${copy.badge.toLowerCase()}. Real EPA SDWIS data, ${pop !== null ? `serving ${fmt(pop)} people. ` : ''}Free, no email.`,
     blocks,
     indexLabel: `${s.name}, ${state}`,
