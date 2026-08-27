@@ -14,5 +14,10 @@
     "markSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\" width=\"26\" height=\"26\" role=\"img\" aria-label=\"DrinkingWaterCheck\"><path d=\"M14 18V8M14 18H34A10 10 0 0 1 44 28V34\" fill=\"none\" stroke=\"hsl(195 60% 38%)\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M44 34c-6 8-9 13-9 18a9 9 0 0 0 18 0c0-5-3-10-9-18Z\" fill=\"hsl(195 60% 38%)\"/></svg>",
     "hue": 195,
     "displayFont": "Public Sans"
-  }
+  },
+  "entityNoun": "water system",
+  "heroHeadline": "What's actually in my tap water?",
+  "heroLede": "Every public water system reports its violations to EPA. This shows you that record for 12,900+ US systems serving 2,000 or more people, straight from EPA's SDWIS data. Free, no email.",
+  "searchPlaceholder": "City of Austin Water",
+  "navVerb": "Check a water system"
 }

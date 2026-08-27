@@ -73,6 +73,21 @@ for (const r of rows) {
   byState.get(r.state).push(r);
 }
 
+// National rank by violation burden - a near-per-row-unique fingerprint the
+// same way wildfire's and radon's percentile ranks are, since this dataset's
+// only other axis (the 5-level status) repeats across thousands of rows.
+const byViolationBurden = [...rows].sort((a, b) =>
+  Number(b.violations_health_based_ever) - Number(a.violations_health_based_ever)
+  || Number(b.violations_total_ever) - Number(a.violations_total_ever));
+const violationRank = new Map(byViolationBurden.map((r, i) => [r.slug, i + 1]));
+const VIOLATION_TOTAL = byViolationBurden.length;
+
+const stateHealthAvg = new Map();
+for (const [state, list] of byState) {
+  const avg = list.reduce((a, r) => a + Number(r.violations_health_based_ever), 0) / list.length;
+  stateHealthAvg.set(state, avg);
+}
+
 const fmt = (n) => Number(n).toLocaleString('en-US');
 const plural = (n, s, p = `${s}s`) => `${fmt(n)} ${n === 1 ? s : p}`;
 
@@ -124,14 +139,57 @@ export function page(row) {
 
   const copy = STATUS_COPY[s.status.level];
   const popLine = pop !== null
-    ? ` It serves ${fmt(pop)} people through ${fmt(s.serviceConnections ?? 0)} connections.`
+    ? pick(row.slug + '-pop', [
+        ` It serves ${fmt(pop)} people through ${fmt(s.serviceConnections ?? 0)} service connections.`,
+        ` ${fmt(pop)} people get their water from it, across ${fmt(s.serviceConnections ?? 0)} connections.`,
+        ` Population served: ${fmt(pop)}, over ${fmt(s.serviceConnections ?? 0)} connections.`,
+      ])
     : '';
 
+  blocks.push({ h2: headlineH2, html: `<p>${copy.explain(s)}${popLine}</p>` });
+
+  // A near-per-row-unique numeric fingerprint, same role as the sibling
+  // sites' national percentile rank - this dataset's status field alone
+  // repeats across thousands of rows, so the violation-burden RANK (a real
+  // number that differs almost row to row) is what actually varies the text.
+  const rank = violationRank.get(row.slug);
+  const pctile = Math.round(((VIOLATION_TOTAL - rank) / (VIOLATION_TOTAL - 1)) * 100);
+  const totalV = Number(row.violations_total_ever) || 0;
+  const healthV = Number(row.violations_health_based_ever) || 0;
   blocks.push({
-    h2: headlineH2,
-    html: `<p>${copy.explain(s)}${popLine} Source: EPA's Safe Drinking Water Information System (SDWIS), ` +
-      `via the <a href="https://echo.epa.gov/" rel="nofollow noopener">ECHO</a> public data download.</p>`,
+    h2: pick(row.slug + '-rank-h2', [
+      'How this compares nationally',
+      `${s.name}'s record against the rest of the country`,
+      'Ranked against every other system in this dataset',
+    ]),
+    html: `<p>${pick(row.slug + '-rank', [
+      `${s.name} has ${plural(totalV, 'violation')} on record in total, ${plural(healthV, 'of them')} health-based - ranking it ${fmt(rank)}th of ${fmt(VIOLATION_TOTAL)} systems by violation count, the ${pctile}th percentile nationally.`,
+      `Out of ${fmt(VIOLATION_TOTAL)} systems in this dataset, ${s.name} ranks ${fmt(rank)}th by violation burden (${pctile}th percentile) - ${plural(totalV, 'violation')} total, ${plural(healthV, 'health-based')}.`,
+      `${fmt(totalV)} total violations and ${fmt(healthV)} health-based ones put ${s.name} at the ${pctile}th percentile nationally for violation burden, rank ${fmt(rank)} of ${fmt(VIOLATION_TOTAL)}.`,
+    ])}</p>`,
   });
+
+  const stateAvg = stateHealthAvg.get(state) ?? 0;
+  const stateList = byState.get(state) ?? [];
+  const aboveStateAvg = healthV > stateAvg;
+  blocks.push({
+    h2: pick(row.slug + '-state-h2', [`Against the ${state} average`, `How ${s.name} compares within ${state}`]),
+    html: `<p>${pick(row.slug + '-state', [
+      `Among the ${fmt(stateList.length)} ${state} systems in this dataset, the average is ${stateAvg.toFixed(1)} health-based violations - ${s.name}'s ${fmt(healthV)} is ${aboveStateAvg ? 'above' : 'at or below'} that.`,
+      `${state}'s ${fmt(stateList.length)} covered systems average ${stateAvg.toFixed(1)} health-based violations each; ${s.name} carries ${fmt(healthV)}, ${aboveStateAvg ? 'more than' : 'not more than'} typical for the state.`,
+      `${s.name}'s ${fmt(healthV)} health-based violations sit ${aboveStateAvg ? 'above' : 'within'} the ${state} average of ${stateAvg.toFixed(1)}, across ${fmt(stateList.length)} systems statewide.`,
+    ])}</p>`,
+  });
+
+  if (s.mostRecentViolationDate) {
+    blocks.push({
+      h2: 'Most recent violation on record',
+      html: `<p>${pick(row.slug + '-date', [
+        `${s.name}'s most recent violation on record is dated ${esc(s.mostRecentViolationDate)}${s.mostRecentHealthViolationDate ? `, with the most recent health-based one dated ${esc(s.mostRecentHealthViolationDate)}` : ''}.`,
+        `The last violation EPA has on record for ${s.name} is from ${esc(s.mostRecentViolationDate)}${s.mostRecentHealthViolationDate ? ` (health-based: ${esc(s.mostRecentHealthViolationDate)})` : ''}.`,
+      ])} Last reported to EPA: ${esc(s.lastReportedDate ?? 'date not recorded')}.</p>`,
+    });
+  }
 
   if (s.concernCategories.length) {
     const catList = s.concernCategories.map((c) =>
