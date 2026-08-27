@@ -176,6 +176,27 @@ for (const [state, list] of byState) {
 const fmt = (n) => Number(n).toLocaleString('en-US');
 const plural = (n, s, p = `${s}s`) => `${fmt(n)} ${n === 1 ? s : p}`;
 
+// EPA's cities_served is a raw, ALL-CAPS, semicolon-joined list, often with a
+// trailing municipal-code suffix per entry ("TOMS RIVER-1507", "ALBANY (C)").
+// Site search only matches against the name/state string the finder already
+// shows (site.build.js's indexLabel -> the shared search-index.json in
+// ../SiteFactory/factory/build.js), so a visitor typing the city a system
+// actually serves (e.g. "Boston" for MWRA, "Nashville" for Metro Water
+// Services) finds nothing even though the homepage promises "your utility
+// or city" - confirmed against 5,440 of 12,903 systems whose served city
+// doesn't appear anywhere in the system's own name. Cleans just the first
+// listed city (the multi-city lists can run to 20+ towns; the first is
+// enough to make the promise true without cluttering every label) for
+// annotating indexLabel below.
+function primaryCityOf(citiesServed) {
+  const first = String(citiesServed || '').split(';')[0]
+    .replace(/-\d+\s*$/, '')       // trailing municipal code, "TOMS RIVER-1507"
+    .replace(/\s*\([A-Z]{1,2}\)\s*$/, '') // trailing area-type code, "ALBANY (C)"
+    .trim();
+  if (!first) return '';
+  return first.toLowerCase().replace(/(^|[\s'-])([a-z])/g, (m, sep, c) => sep + c.toUpperCase());
+}
+
 function hashOf(str) {
   let h = 2166136261;
   for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
@@ -408,12 +429,21 @@ export function page(row) {
   // name - the accurate, searched-for part - intact rather than shortening it.
   const title = fullTitle.length > 60 ? nameState : fullTitle;
 
+  // The homepage finder's own hint says "Start typing your utility or
+  // city" but the search index only ever carried the system name (see
+  // primaryCityOf() above) - annotate indexLabel with the actual served
+  // city whenever it isn't already part of the name, so typing "Boston"
+  // actually finds MWRA the way the site already claims it will.
+  const primaryCity = primaryCityOf(s.citiesServed);
+  const cityAlreadyInName = primaryCity && s.name.toUpperCase().includes(primaryCity.toUpperCase());
+  const indexLabel = primaryCity && !cityAlreadyInName ? `${nameState} (${primaryCity})` : nameState;
+
   return {
     slug: row.slug,
     title,
     description: `${s.name}${state ? ` (${state})` : ''}: ${copy.badge.toLowerCase()}. Real EPA SDWIS data, ${pop !== null ? `serving ${fmt(pop)} people. ` : ''}Free, no email.`,
     blocks,
-    indexLabel: nameState,
+    indexLabel,
     // A real state groups by state as always; the few systems with none
     // (see loadSystems()) get one honest shared hub instead of falling
     // through hubs()'s first-letter-of-label fallback and fragmenting into
