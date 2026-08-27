@@ -6,10 +6,17 @@
   "dataset": "EPA SDWIS violations and contaminant testing by public water system",
   "secrets": {
     "searchConsoleSA": "drinkingwatercheck-seo-sa",
-    "pageSpeedKey": "drinkingwatercheck-psi-key"
+    "pageSpeedKey": "drinkingwatercheck-psi-key",
+    "searchConsoleSAEmail": "drinkingwatercheck-seo-sa@drinkingwatercheck-site.iam.gserviceaccount.com"
   },
-  "vitalsUrls": ["/"],
-  "uniqueness": { "sample": 120, "medianMin": 0.30, "pageMin": 0.20 },
+  "vitalsUrls": [
+    "/"
+  ],
+  "uniqueness": {
+    "sample": 120,
+    "medianMin": 0.3,
+    "pageMin": 0.2
+  },
   "revenue": {
     "adsenseId": "pub-1937434719533429"
   },
