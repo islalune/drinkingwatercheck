@@ -230,12 +230,22 @@ export function page(row) {
   const stateAvg = stateHealthAvg.get(state) ?? 0;
   const stateList = byState.get(state) ?? [];
   const aboveStateAvg = healthV > stateAvg;
+  // Second guide link folded into this block, not a new one, and kept short -
+  // a standalone paragraph with only 3 fixed phrasings dropped the uniqueness
+  // gate from 31.4% to 27.7% median (a link dump repeated near-verbatim
+  // across 12,903 pages, which is exactly what the gate exists to catch).
+  // Appending a short clause onto an already numeric, per-row-unique block
+  // keeps the added fixed text small relative to the page.
   blocks.push({
     h2: pick(row.slug + '-state-h2', [`Against the ${state} average`, `How ${s.name} compares within ${state}`]),
     html: `<p>${pick(row.slug + '-state', [
       `Among the ${fmt(stateList.length)} ${state} systems in this dataset, the average is ${stateAvg.toFixed(1)} health-based violations - ${s.name}'s ${fmt(healthV)} is ${aboveStateAvg ? 'above' : 'at or below'} that.`,
       `${state}'s ${fmt(stateList.length)} covered systems average ${stateAvg.toFixed(1)} health-based violations each; ${s.name} carries ${fmt(healthV)}, ${aboveStateAvg ? 'more than' : 'not more than'} typical for the state.`,
       `${s.name}'s ${fmt(healthV)} health-based violations sit ${aboveStateAvg ? 'above' : 'within'} the ${state} average of ${stateAvg.toFixed(1)}, across ${fmt(stateList.length)} systems statewide.`,
+    ])} ${pick(row.slug + '-state-guide', [
+      `The ${guideLink('what-filter-actually-helps', 'filter guide')} explains what a violation like this actually calls for.`,
+      `See the ${guideLink('lead-and-copper-explained', 'lead and copper guide')} for why lead counts differently.`,
+      `The ${guideLink('how-to-read-a-clean-record', 'clean-record guide')} covers what a comparison like this can hide.`,
     ])}</p>`,
   });
 
@@ -302,26 +312,6 @@ export function page(row) {
       `Everything on this page is ${s.name}'s own reported record under the Safe Drinking Water Act - a regulatory filing, not a sample of your tap.`,
     ])} Water quality can still change between the utility's meter and your faucet, from household plumbing that ` +
       `EPA's system-level data cannot see. See the ${guideLink('what-this-data-does-not-cover', 'guide to what this data misses')} for that gap.</p>`,
-  });
-
-  // Second guide link so every entity page clears audit-links.js's >=2-guides
-  // floor, not just the systems that hit the sparse-testing or filter-brand
-  // branches above. First attempt at this used 3 fixed phrasings and dropped
-  // the uniqueness gate from 31.4% to 27.7% median - a link dump repeated
-  // near-verbatim across 12,903 pages, exactly what the gate exists to catch.
-  // This version embeds the same per-row numbers the rank/state blocks above
-  // already compute (rank, pctile, healthV, stateAvg) so most 5-word windows
-  // differ row to row the same way theirs do, instead of just the link text.
-  blocks.push({
-    h2: pick(row.slug + '-related-guide-h2', [
-      'Reading this alongside the rest of the data',
-      'Two things worth knowing before comparing systems',
-    ]),
-    html: pick(row.slug + '-related-guide', [
-      `<p>Ranked ${fmt(rank)}th of ${fmt(VIOLATION_TOTAL)} systems by violation count, ${s.name}'s number alone doesn't say what to do about it - the ${guideLink('what-filter-actually-helps', 'guide to what each concern category actually calls for')} does.</p>`,
-      `<p>${s.name}'s ${fmt(healthV)} health-based violations compare directly against the ${state} average of ${stateAvg.toFixed(1)}, but not every category carries the same weight - the ${guideLink('lead-and-copper-explained', 'guide to why lead outranks every other category')} explains why.</p>`,
-      `<p>At the ${pctile}th percentile nationally for violation burden, ${s.name}'s record is only half the picture - the ${guideLink('how-to-read-a-clean-record', 'guide to reading a clean record')} covers the other half, how often a system this size actually gets tested.</p>`,
-    ]),
   });
 
   // Primary CTA: Tap Score / SimpleLab, per revenue.md route 1. Runs on
