@@ -1,0 +1,13 @@
+{
+  "name": "TapWaterCheck",
+  "host": "drinkingwatercheck.com",
+  "gcpProject": "drinkingwatercheck-site",
+  "candidate": "tap-water-quality",
+  "dataset": "EPA SDWIS violations and contaminant testing by public water system",
+  "secrets": {
+    "searchConsoleSA": "drinkingwatercheck-seo-sa",
+    "pageSpeedKey": "drinkingwatercheck-psi-key"
+  },
+  "vitalsUrls": ["/"],
+  "uniqueness": { "sample": 120, "medianMin": 0.30, "pageMin": 0.20 }
+}
