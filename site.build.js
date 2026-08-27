@@ -219,11 +219,13 @@ export function page(row) {
   }
 
   blocks.push({
-    h2: 'What this data is and is not',
-    html: `<p>This is what ${s.name} reported to its state primacy agency and EPA under the Safe Drinking Water ` +
-      `Act - real regulatory record, not a lab test of your specific tap. Water quality can still change between ` +
-      `your utility's meter and your faucet, from household plumbing (lead solder, old pipes) that EPA's system-level ` +
-      `data cannot see. See the ${guideLink('what-this-data-does-not-cover', 'guide to what this data misses')} for that gap.</p>`,
+    h2: pick(row.slug + '-caveat-h2', ['What this data is and is not', `What ${s.name}'s record does not cover`]),
+    html: `<p>${pick(row.slug + '-caveat', [
+      `This is what ${s.name} reported to its state primacy agency and EPA under the Safe Drinking Water Act - real regulatory record, not a lab test of your specific tap.`,
+      `${s.name}'s numbers here come from its own required reporting to EPA under the Safe Drinking Water Act, not from an independent test of your glass of water.`,
+      `Everything on this page is ${s.name}'s own reported record under the Safe Drinking Water Act - a regulatory filing, not a sample of your tap.`,
+    ])} Water quality can still change between the utility's meter and your faucet, from household plumbing that ` +
+      `EPA's system-level data cannot see. See the ${guideLink('what-this-data-does-not-cover', 'guide to what this data misses')} for that gap.</p>`,
   });
 
   return {
