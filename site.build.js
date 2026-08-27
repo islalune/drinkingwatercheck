@@ -10,6 +10,64 @@ import { summarizeSystem, violationStatus } from './functions/water-model.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
+// ---------------------------------------------------------------------------
+// Revenue routes, per revenue.md. Every id defaults to "" in site.config.json,
+// which keeps every piece below dark: the CTA link, the disclosure line and
+// the privacy paragraph all key off the SAME id, so a commission can never
+// start flowing without the disclosure going live in the same build.
+//
+// Two independent slots, per revenue.md routes 1 and 2: Tap Score answers
+// "what's actually coming out of MY tap" (this site's SDWIS data is
+// system-wide, not household-level, so it structurally can't answer that
+// itself) and runs on every page regardless of what was found. The filter
+// CTA only fires when a system has a concern category, and is tiered by
+// water-model.js's recommendedFilterClass so a lead flag steers toward a
+// whole-house/point-of-use system and a disinfection-byproduct flag doesn't
+// oversell a pitcher as the fix for something it can't address - revenue.md's
+// own finding is that whole-house/under-sink sales are worth 4-8x a
+// pitcher sale, so the tier order below prefers those brands first.
+//
+// Email capture (revenue.md's route 7, tied to the EPA CCR annual-report
+// cycle) was considered and deliberately left out: this site's own
+// heroLede promises "Free, no email," so an email gate would contradict the
+// pitch shown to every visitor - the same call RadonZoneCheck made for the
+// same reason. No idea.js entry - it's a design call, not a traffic-gated
+// route with a revisit trigger.
+// ---------------------------------------------------------------------------
+const ADSENSE_ON = Boolean(site.revenue?.adsenseId);
+const TAPSCORE_ID = site.revenue?.affiliates?.tapscore || '';
+
+const FILTER_BRANDS = {
+  aquasana: { name: 'Aquasana', url: (id) => `https://www.aquasana.com/?ref=${id}`, tier: 'system' },
+  ispring: { name: 'iSpring', url: (id) => `https://www.ispringwatersystems.com/?ref=${id}`, tier: 'system' },
+  waterdrop: { name: 'Waterdrop', url: (id) => `https://www.waterdropfilter.com/?ref=${id}`, tier: 'system' },
+  berkey: { name: 'Berkey', url: (id) => `https://berkeyfilters.com/?ref=${id}`, tier: 'system' },
+  brita: { name: 'Brita', url: (id) => `https://www.brita.com/?ref=${id}`, tier: 'pitcher' },
+  zerowater: { name: 'ZeroWater', url: (id) => `https://www.zerowater.com/?ref=${id}`, tier: 'pitcher' },
+};
+// Which brands are actually live right now, keyed by brand id.
+const ACTIVE_FILTER_BRANDS = Object.fromEntries(
+  Object.entries(site.revenue?.affiliates ?? {})
+    .filter(([key, id]) => id && FILTER_BRANDS[key])
+    .map(([key, id]) => [key, { ...FILTER_BRANDS[key], id }]),
+);
+// filterClass -> ordered brand preference. Whole-house/under-sink systems
+// first per revenue.md's own build note; pitchers are the fallback for the
+// lower-severity carbon class, where a pitcher is a genuine fix, not a
+// downsell.
+const FILTER_CLASS_BRANDS = {
+  lead: ['aquasana', 'ispring', 'waterdrop', 'berkey'],
+  microbial: ['berkey', 'aquasana', 'ispring'],
+  'reverse-osmosis': ['aquasana', 'ispring', 'waterdrop'],
+  carbon: ['waterdrop', 'ispring', 'brita', 'zerowater'],
+};
+function activeFilterBrandFor(filterClass) {
+  const order = FILTER_CLASS_BRANDS[filterClass] ?? [];
+  for (const key of order) if (ACTIVE_FILTER_BRANDS[key]) return ACTIVE_FILTER_BRANDS[key];
+  return null;
+}
+const ANY_FILTER_AFFILIATE_ACTIVE = Object.keys(ACTIVE_FILTER_BRANDS).length > 0;
+
 function esc(s) {
   return String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 }
